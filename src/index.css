@@ -1,104 +1,120 @@
 @import "tailwindcss";
 
-@theme {
-  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --color-ops-bg: #101313;
-  --color-ops-panel: #171b1b;
-  --color-ops-line: #2b3130;
-  --color-ops-muted: #929b96;
-  --color-ops-lime: #c5f26d;
+@theme inline {
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+  --color-ops-bg: var(--page-bg);
+  --color-ops-panel: var(--panel-bg);
+  --color-ops-line: var(--line-color);
+  --color-ops-muted: var(--muted-color);
+  --color-ops-text: var(--text-color);
+  --color-ops-accent: var(--accent-color);
+  --color-ops-accent-text: var(--accent-text-color);
+  --color-ops-accent-strong: var(--accent-strong-color);
+  --color-ops-accent-bg: var(--accent-bg-color);
+  --color-ops-primary: var(--primary-button-color);
+  --color-ops-primary-hover: var(--primary-button-hover-color);
+  --color-ops-success: var(--success-text-color);
+  --color-ops-success-bg: var(--success-bg-color);
+  --color-ops-info: var(--info-text-color);
+  --color-ops-info-bg: var(--info-bg-color);
+  --color-ops-warning: var(--warning-text-color);
+  --color-ops-warning-bg: var(--warning-bg-color);
+  --color-ops-caution: var(--caution-text-color);
+  --color-ops-caution-bg: var(--caution-bg-color);
+  --color-ops-danger: var(--danger-text-color);
+  --color-ops-danger-strong: var(--danger-strong-color);
+  --color-ops-danger-bg: var(--danger-bg-color);
+  --color-ops-neutral: var(--neutral-text-color);
+  --color-ops-neutral-bg: var(--neutral-bg-color);
 }
 
 :root {
-  --page-color: #101313;
-  --page-text: #e5e9e5;
-  --focus-color: #c5f26d;
+  --page-bg: #101419;
+  --panel-bg: #171d24;
+  --line-color: #29333e;
+  --muted-color: #a2adb8;
+  --text-color: #edf1f5;
+  --accent-color: #6ca5ff;
+  --accent-text-color: #8ab7ff;
+  --accent-strong-color: #b1d0ff;
+  --accent-bg-color: #1e3149;
+  --primary-button-color: #2563eb;
+  --primary-button-hover-color: #1d4ed8;
+  --success-text-color: #8de0bb;
+  --success-bg-color: #1b342a;
+  --info-text-color: #8ab7ff;
+  --info-bg-color: #1e3149;
+  --warning-text-color: #ffdd99;
+  --warning-bg-color: #382f1d;
+  --caution-text-color: #ffc795;
+  --caution-bg-color: #39291e;
+  --danger-text-color: #ffb2be;
+  --danger-strong-color: #ffd0d7;
+  --danger-bg-color: #3a2229;
+  --neutral-text-color: #c4ccd5;
+  --neutral-bg-color: #262c33;
   color-scheme: dark;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: var(--page-color);
-  color: var(--page-text);
-  font-optical-sizing: auto;
-  font-weight: 400;
+  background: var(--page-bg);
+  color: var(--text-color);
 }
 
 :root[data-theme='light'] {
-  --page-color: #f2f5f8;
-  --page-text: #1e2933;
-  --focus-color: #1769c2;
+  --page-bg: #f4f7fa;
+  --panel-bg: #ffffff;
+  --line-color: #dde4ec;
+  --muted-color: #536273;
+  --text-color: #1b2733;
+  --accent-color: #1769c2;
+  --accent-text-color: #155fa0;
+  --accent-strong-color: #0f4d91;
+  --accent-bg-color: #e8f1ff;
+  --primary-button-color: #1769c2;
+  --primary-button-hover-color: #1458a8;
+  --success-text-color: #116b4b;
+  --success-bg-color: #e6f7ef;
+  --info-text-color: #155fa0;
+  --info-bg-color: #e8f1ff;
+  --warning-text-color: #885500;
+  --warning-bg-color: #fff3d8;
+  --caution-text-color: #994b0c;
+  --caution-bg-color: #fff0e8;
+  --danger-text-color: #a51e38;
+  --danger-strong-color: #7c132b;
+  --danger-bg-color: #ffecef;
+  --neutral-text-color: #475569;
+  --neutral-bg-color: #eef1f4;
   color-scheme: light;
 }
 
-* {
-  box-sizing: border-box;
+* { box-sizing: border-box; }
+html { min-width: 320px; min-height: 100%; background: var(--page-bg); scroll-behavior: smooth; }
+body { min-width: 320px; min-height: 100vh; margin: 0; background: var(--page-bg); }
+button, input, select, textarea { font: inherit; }
+@layer base {
+  button { color: inherit; }
 }
-
-html {
-  min-width: 320px;
-  min-height: 100%;
-  background: var(--page-color);
-  scroll-behavior: smooth;
-}
-
-body {
-  min-width: 320px;
-  min-height: 100vh;
-  margin: 0;
-  background: var(--page-color);
-}
-
-button,
-input,
-select {
-  font: inherit;
-}
-
-button {
-  color: inherit;
-}
-
-button:focus-visible,
-input:focus-visible,
-select:focus-visible,
-a:focus-visible {
-  outline: 2px solid var(--focus-color);
-  outline-offset: 3px;
-}
-
-::selection {
-  color: var(--page-color);
-  background: var(--focus-color);
-}
-
-:root[data-theme='light'] ::selection {
-  color: #ffffff;
-  background: #1769c2;
-}
-
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-thumb {
-  border-radius: 99px;
-  background: #46504b;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, a:focus-visible { outline: 2px solid var(--accent-color); outline-offset: 3px; }
+::selection { color: var(--page-bg); background: var(--accent-color); }
+::-webkit-scrollbar { width: 7px; height: 7px; }
+::-webkit-scrollbar-thumb { border-radius: 99px; background: #465361; }
+::-webkit-scrollbar-track { background: transparent; }
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    scroll-behavior: auto !important;
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
+
+@keyframes sitecore-select-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media print {
+  :root { color-scheme: light; --page-bg: #ffffff; --panel-bg: #ffffff; --line-color: #d3d8dd; --muted-color: #47515a; --text-color: #111827; }
+  aside, header, footer, .no-print { display: none !important; }
+  body, main { background: white !important; color: #111827 !important; }
 }
