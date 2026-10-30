@@ -56,6 +56,7 @@ export function AssetsPage() {
   const saveAsset = useAppStore((state) => state.saveAsset)
   const deleteAsset = useAppStore((state) => state.deleteAsset)
   const selectAsset = useAppStore((state) => state.selectAsset)
+  const showToast = useAppStore((state) => state.showToast)
   const navigate = useNavigate()
   const location = useLocation()
   const routeEditAssetId = getEditAssetId(location.state)
@@ -75,12 +76,26 @@ export function AssetsPage() {
   }, [location.pathname, navigate, routeEditAssetId])
 
   const submit = async (draft: AssetDraft) => {
+    const wasEditing = Boolean(editing)
     setBusy(true)
     try {
       if (editing) await saveAsset({ ...editing, ...draft })
       else await createAsset(draft)
       setModal(null); setEditing(null)
+      showToast({ type: 'success', title: wasEditing ? 'Asset updated' : 'Asset registered', description: `${draft.name} is saved in the site register.` })
+    } catch (error) {
+      showToast({ type: 'error', title: 'Asset not saved', description: error instanceof Error ? error.message : 'Please try again.' })
     } finally { setBusy(false) }
+  }
+  const retireAsset = async () => {
+    if (!editing) return
+    try {
+      await deleteAsset(editing.id)
+      setModal(null)
+      showToast({ type: 'success', title: 'Asset retired', description: `${editing.name} was removed from the site register.` })
+    } catch (error) {
+      showToast({ type: 'error', title: 'Asset not retired', description: error instanceof Error ? error.message : 'Please try again.' })
+    }
   }
 
   return <>
@@ -91,6 +106,6 @@ export function AssetsPage() {
       {filtered.length ? <div className="overflow-x-auto"><table className="w-full min-w-[760px] border-collapse text-left"><thead><tr className="border-b border-ops-line text-xs font-semibold uppercase tracking-[.12em] text-ops-muted"><th className="px-4 py-3 font-medium">Asset</th><th className="px-4 py-3 font-medium">Category</th><th className="px-4 py-3 font-medium">Zone / location</th><th className="px-4 py-3 font-medium">Status</th><th className="px-4 py-3 font-medium">Utilisation</th><th className="px-4 py-3 text-right font-medium">Actions</th></tr></thead><tbody>{filtered.map((asset) => { const Icon = asset.kind === 'vehicle' ? Truck : asset.kind === 'warehouse' || asset.kind === 'process-hall' ? Building2 : Box; return <tr key={asset.id} className="border-b border-ops-line/70 last:border-b-0 hover:bg-ops-bg/60"><td className="px-4 py-3"><div className="flex items-center gap-3"><span className="grid h-9 w-9 place-items-center rounded-lg bg-ops-bg text-ops-muted"><Icon size={16} /></span><div><button onClick={() => { selectAsset(asset.id, true); navigate('/site') }} className="text-left text-sm font-medium hover:text-ops-accent-text">{asset.name}</button><p className="mt-0.5 font-mono text-xs text-ops-muted">{asset.id} · {asset.serialNumber}</p></div></div></td><td className="px-4 py-3 text-sm text-ops-muted">{asset.typeLabel}</td><td className="px-4 py-3"><p className="text-xs font-medium">{getZoneName(data, asset.zoneId)}</p><p className="mt-0.5 text-xs text-ops-muted">{asset.location}</p></td><td className="px-4 py-3"><Badge tone={asset.status}>{STATUS_LABELS[asset.status]}</Badge></td><td className="px-4 py-3"><div className="flex items-center gap-2"><div className="h-1.5 w-20 overflow-hidden rounded-full bg-ops-line"><div className="h-full rounded-full bg-blue-400" style={{ width: `${asset.utilization}%` }} /></div><span className="text-xs tabular-nums text-ops-muted">{asset.utilization}%</span></div></td><td className="px-4 py-3"><div className="flex justify-end gap-1"><Button variant="subtle" className="h-8 min-h-8 w-8 p-0" title="View in site viewer" aria-label={`View ${asset.name} in site viewer`} onClick={() => { selectAsset(asset.id, true); navigate('/site') }}><Crosshair size={15} /></Button><Button variant="subtle" className="h-8 min-h-8 w-8 p-0" title="Edit asset" aria-label={`Edit ${asset.name}`} onClick={() => { setEditing(asset); setModal('edit') }}><Edit3 size={15} /></Button><Button variant="subtle" className="h-8 min-h-8 w-8 p-0 text-ops-danger hover:text-ops-danger-strong" title="Retire asset" aria-label={`Retire ${asset.name}`} onClick={() => { setEditing(asset); setModal('delete') }}><Trash2 size={15} /></Button></div></td></tr> })}</tbody></table></div> : <div className="p-5"><EmptyState title="No matching assets" detail={query || status !== 'all' || kind !== 'all' ? 'Adjust or clear your filters to see more records.' : 'Add the first asset to the site register.'} action={!(query || status !== 'all' || kind !== 'all') && <Button variant="primary" onClick={() => setModal('create')}><Plus size={15} />Register asset</Button>} /></div>}
     </Card>
     <Modal open={modal === 'create' || modal === 'edit'} onClose={() => { if (!busy) { setModal(null); setEditing(null) } }} title={editing ? `Edit ${editing.id}` : 'Register a site asset'} size="max-w-2xl"><AssetForm asset={modal === 'edit' ? editing : null} onCancel={() => { setModal(null); setEditing(null) }} onSave={(draft) => void submit(draft)} /></Modal>
-    <Modal open={modal === 'delete'} onClose={() => setModal(null)} title="Retire this asset" footer={<><Button onClick={() => setModal(null)}>Cancel</Button><Button variant="danger" onClick={() => { if (editing) void deleteAsset(editing.id).then(() => setModal(null)) }}>Retire asset</Button></>}><p className="text-sm leading-6 text-ops-muted">Retire <span className="font-medium text-ops-text">{editing?.name}</span>? The asset will be removed from the live register and 3D view. Incident, inspection, and work order history will remain with the asset link cleared.</p></Modal>
+    <Modal open={modal === 'delete'} onClose={() => setModal(null)} title="Retire this asset" footer={<><Button onClick={() => setModal(null)}>Cancel</Button><Button variant="danger" onClick={() => void retireAsset()}>Retire asset</Button></>}><p className="text-sm leading-6 text-ops-muted">Retire <span className="font-medium text-ops-text">{editing?.name}</span>? The asset will be removed from the live register and 3D view. Incident, inspection, and work order history will remain with the asset link cleared.</p></Modal>
   </>
 }

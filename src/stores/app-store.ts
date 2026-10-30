@@ -6,10 +6,17 @@ import { loadSiteData, saveSiteData } from '../services/site-repository'
 import type { Incident, IncidentSeverity, Inspection, MaintenanceTask, OperationalEvent, PersistedSiteData, SceneLayers, SiteAsset, SiteSettings } from '../types/operations'
 
 type DataPatch = (data: PersistedSiteData) => PersistedSiteData
+export interface AppToast {
+  id: string
+  type: 'success' | 'error'
+  title: string
+  description?: string
+}
 interface AppState {
   data: PersistedSiteData | null
   hydrated: boolean
   error: string | null
+  toast: AppToast | null
   notice: { id: string; title: string; description: string } | null
   selectedAssetId: string | null
   selectedZoneId: string | null
@@ -18,6 +25,8 @@ interface AppState {
   focusRequest: { assetId: string; key: number; position: [number, number]; distance: number } | null
   hydrate: () => Promise<void>
   setError: (error: string | null) => void
+  showToast: (toast: Omit<AppToast, 'id'>) => void
+  dismissToast: (id?: string) => void
   dismissNotice: () => void
   selectAsset: (id: string | null, focus?: boolean) => void
   selectZone: (id: string | null) => void
@@ -81,6 +90,7 @@ export const useAppStore = create<AppState>((set, get) => {
     data: null,
     hydrated: false,
     error: null,
+    toast: null,
     notice: null,
     selectedAssetId: null,
     selectedZoneId: null,
@@ -95,7 +105,9 @@ export const useAppStore = create<AppState>((set, get) => {
         set({ data: createInitialData(), hydrated: true, error: error instanceof Error ? error.message : 'Could not load local data.' })
       }
     },
-    setError: (error) => set({ error }),
+    setError: (error) => set(error ? { error, toast: null } : { error: null }),
+    showToast: (toast) => set({ toast: { ...toast, id: makeId('TOAST') }, error: null }),
+    dismissToast: (id) => set((state) => state.toast && (!id || state.toast.id === id) ? { toast: null } : state),
     dismissNotice: () => set({ notice: null }),
     selectAsset: (id, focus = false) => {
       const asset = id ? get().data?.assets.find((item) => item.id === id) : undefined

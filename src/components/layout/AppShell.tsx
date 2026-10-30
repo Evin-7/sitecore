@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, ScrollRestoration, useLocation } from 'react-router'
-import { Activity, AlertTriangle, BarChart3, Bell, Boxes, Building2, ClipboardCheck, ClipboardList, Gauge, Menu, Moon, PanelLeftClose, Settings2, Sun, X } from 'lucide-react'
+import { Activity, AlertTriangle, BarChart3, Bell, Boxes, Building2, CheckCircle2, ClipboardCheck, ClipboardList, Gauge, Menu, Moon, PanelLeftClose, Settings2, Sun, X } from 'lucide-react'
 import { Button } from '../ui'
 import { cn } from '../../lib/cn'
 import { SITE_NAME } from '../../data/site-data'
@@ -42,8 +42,10 @@ export function AppShell() {
   const [mobileNav, setMobileNav] = useState(false)
   const data = useAppStore((state) => state.data)
   const error = useAppStore((state) => state.error)
+  const toast = useAppStore((state) => state.toast)
   const notice = useAppStore((state) => state.notice)
   const setError = useAppStore((state) => state.setError)
+  const dismissToast = useAppStore((state) => state.dismissToast)
   const dismissNotice = useAppStore((state) => state.dismissNotice)
   const updateSettings = useAppStore((state) => state.updateSettings)
   const running = data?.simulation.running ?? false
@@ -53,6 +55,17 @@ export function AppShell() {
     const timer = window.setTimeout(dismissNotice, 7000)
     return () => window.clearTimeout(timer)
   }, [notice, dismissNotice])
+  useEffect(() => {
+    if (!toast) return
+    const timer = window.setTimeout(() => dismissToast(toast.id), 5000)
+    return () => window.clearTimeout(timer)
+  }, [toast, dismissToast])
+  useEffect(() => {
+    if (!error) return
+    const timer = window.setTimeout(() => setError(null), 7000)
+    return () => window.clearTimeout(timer)
+  }, [error, setError])
+  const visibleToast = toast ?? (error ? { id: 'store-error', type: 'error' as const, title: 'Action could not be saved', description: error } : null)
   return <div className="min-h-dvh bg-ops-bg text-ops-text">
     <div className="fixed inset-y-0 left-0 z-30 hidden lg:block"><Sidebar /></div>
     {mobileNav && <div className="fixed inset-0 z-50 lg:hidden"><button aria-label="Close navigation overlay" className="absolute inset-0 bg-black/60" onClick={() => setMobileNav(false)} /><div className="absolute inset-y-0 left-0 shadow-2xl"><Sidebar mobile onNavigate={() => setMobileNav(false)} /></div></div>}
@@ -60,8 +73,12 @@ export function AppShell() {
       <header className="sticky top-0 z-20 flex h-[68px] items-center justify-between border-b border-ops-line bg-ops-bg/95 px-4 backdrop-blur sm:px-6 lg:px-8"><div className="flex min-w-0 items-center gap-3"><Button variant="subtle" className="h-9 min-h-9 w-9 p-0 lg:hidden" onClick={() => setMobileNav(true)} aria-label="Open navigation"><Menu size={18} /></Button><div className="min-w-0"><div className="flex items-center gap-2 text-xs text-ops-muted"><span>SiteCore</span><span>/</span><span className="truncate text-ops-text">{title}</span></div><h1 className="truncate text-sm font-semibold text-ops-text sm:text-base">{title}</h1></div></div><div className="flex items-center gap-2 sm:gap-3"><span className={cn('hidden items-center gap-2 rounded-full border px-2.5 py-1.5 text-xs sm:inline-flex', running ? 'border-ops-warning/25 bg-ops-warning-bg/50 text-ops-warning' : 'border-ops-line text-ops-muted')}><span className={cn('h-1.5 w-1.5 rounded-full', running ? 'animate-pulse bg-amber-400' : 'bg-ops-muted')} />{running ? 'Simulation running' : 'Local data'}</span><Button variant="subtle" className="h-9 min-h-9 w-9 p-0" onClick={() => void updateSettings({ theme: data?.settings.theme === 'light' ? 'dark' : 'light' })} aria-label={`Switch to ${data?.settings.theme === 'light' ? 'dark' : 'light'} theme`}>{data?.settings.theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}</Button></div></header>
       <main className="mx-auto w-full max-w-[1640px] p-4 sm:p-6 lg:p-8"><Outlet /></main>
     </div>
-    {error && <div role="alert" className="fixed bottom-4 right-4 z-[60] flex max-w-sm items-start gap-3 rounded-lg border border-ops-danger/25 bg-ops-panel p-4 shadow-xl"><AlertTriangle size={17} className="mt-0.5 shrink-0 text-ops-danger" /><p className="text-sm text-ops-text">{error}</p><button className="ml-auto text-ops-muted hover:text-ops-text" onClick={() => setError(null)} aria-label="Dismiss error"><X size={15} /></button></div>}
-    {notice && <div role="status" className="fixed bottom-4 left-4 z-50 flex max-w-sm items-start gap-3 rounded-lg border border-ops-warning/25 bg-ops-panel p-4 shadow-xl sm:left-auto sm:right-4"><AlertTriangle size={17} className="mt-0.5 shrink-0 text-ops-warning" /><div className="min-w-0"><p className="text-sm font-medium">{notice.title}</p><p className="mt-1 line-clamp-2 text-xs text-ops-muted">{notice.description}</p><Link to="/alerts" onClick={dismissNotice} className="mt-2 inline-block text-xs font-medium text-ops-accent-text">Review incidents</Link></div><button className="ml-auto text-ops-muted hover:text-ops-text" onClick={dismissNotice} aria-label="Dismiss notification"><X size={15} /></button></div>}
+    {visibleToast && <div key={visibleToast.id} role={visibleToast.type === 'error' ? 'alert' : 'status'} aria-live={visibleToast.type === 'error' ? 'assertive' : 'polite'} className={`sitecore-toast-in fixed bottom-4 right-4 z-[70] flex w-[calc(100vw-2rem)] max-w-sm items-start gap-3 rounded-xl border bg-ops-panel p-4 shadow-2xl ${visibleToast.type === 'success' ? 'border-ops-success/30' : 'border-ops-danger/30'}`}>
+      <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg ${visibleToast.type === 'success' ? 'bg-ops-success-bg text-ops-success' : 'bg-ops-danger-bg text-ops-danger'}`}>{visibleToast.type === 'success' ? <CheckCircle2 size={18} /> : <AlertTriangle size={18} />}</span>
+      <div className="min-w-0 flex-1 pt-0.5"><p className="text-sm font-semibold text-ops-text">{visibleToast.title}</p>{visibleToast.description && <p className="mt-1 break-words text-xs leading-5 text-ops-muted">{visibleToast.description}</p>}</div>
+      <button className="-mr-1 -mt-1 grid h-7 w-7 shrink-0 place-items-center rounded-md text-ops-muted transition-colors hover:bg-ops-bg hover:text-ops-text" onClick={() => visibleToast.id === 'store-error' ? setError(null) : dismissToast(visibleToast.id)} aria-label="Dismiss notification"><X size={15} /></button>
+    </div>}
+    {notice && <div role="status" className="fixed bottom-24 left-4 z-50 flex max-w-sm items-start gap-3 rounded-lg border border-ops-warning/25 bg-ops-panel p-4 shadow-xl sm:bottom-4"><AlertTriangle size={17} className="mt-0.5 shrink-0 text-ops-warning" /><div className="min-w-0"><p className="text-sm font-medium">{notice.title}</p><p className="mt-1 line-clamp-2 text-xs text-ops-muted">{notice.description}</p><Link to="/alerts" onClick={dismissNotice} className="mt-2 inline-block text-xs font-medium text-ops-accent-text">Review incidents</Link></div><button className="ml-auto text-ops-muted hover:text-ops-text" onClick={dismissNotice} aria-label="Dismiss notification"><X size={15} /></button></div>}
     <footer className="border-t border-ops-line px-4 py-3 text-center text-xs text-ops-muted sm:px-6 lg:ml-[248px]">SiteCore · Local data workspace · Changes are stored in this browser</footer>
     <ScrollRestoration />
   </div>

@@ -113,6 +113,13 @@ button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-
   to { opacity: 1; }
 }
 
+@keyframes sitecore-toast-in {
+  from { opacity: 0; transform: translate3d(0, 10px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+.sitecore-toast-in { animation: sitecore-toast-in 180ms ease-out both; }
+
 @media print {
   :root { color-scheme: light; --page-bg: #ffffff; --panel-bg: #ffffff; --line-color: #d3d8dd; --muted-color: #47515a; --text-color: #111827; }
   aside, header, footer, .no-print { display: none !important; }
