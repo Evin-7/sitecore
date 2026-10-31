@@ -70,7 +70,7 @@ export function DashboardPage() {
         { label: 'Open alerts', value: openIncidents, icon: BellRing, to: '/alerts', tone: openIncidents ? 'text-ops-warning' : 'text-ops-success' },
         { label: 'Overdue work orders', value: metricsData.overdueWorkOrders, icon: Wrench, to: '/maintenance', tone: 'text-ops-caution' },
         { label: 'Inspections underway', value: metricsData.inspectionsInProgress, icon: ClipboardList, to: '/inspections', tone: 'text-ops-accent-text' },
-      ].map(({ label, value, icon: Icon, to, tone }) => <Link key={label} to={to} className="flex items-center gap-3 rounded-lg border border-ops-line p-3 transition-colors hover:bg-ops-bg"><span className={`grid h-8 w-8 place-items-center rounded-lg bg-ops-bg ${tone}`}><Icon size={15} /></span><span className="flex-1 text-xs font-medium">{label}</span><span className="text-lg font-semibold tabular-nums">{value}</span><ArrowRight size={14} className="text-ops-muted" /></Link>)}</div><div className="mt-4 rounded-lg bg-ops-accent-bg/40 p-3 text-xs leading-5 text-ops-muted"><MapPinned size={14} className="mr-1.5 inline text-ops-accent-text" />Changes sync to one shared workspace. Any visitor can edit these demo records.</div></Card>
+      ].map(({ label, value, icon: Icon, to, tone }) => <Link key={label} to={to} className="flex items-center gap-3 rounded-lg border border-ops-line p-3 transition-colors hover:bg-ops-bg"><span className={`grid h-8 w-8 place-items-center rounded-lg bg-ops-bg ${tone}`}><Icon size={15} /></span><span className="flex-1 text-xs font-medium">{label}</span><span className="text-lg font-semibold tabular-nums">{value}</span><ArrowRight size={14} className="text-ops-muted" /></Link>)}</div></Card>
     </div>
   </>
 }
