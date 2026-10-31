@@ -62,6 +62,7 @@ export function Field({ label, hint, children, className }: { label: string; hin
 const inputClass = 'min-h-10 w-full rounded-lg border border-ops-line bg-ops-bg px-3 text-sm text-ops-text placeholder:text-ops-muted focus:border-ops-accent focus:ring-2 focus:ring-ops-accent/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ops-accent'
 export function TextInput(props: InputHTMLAttributes<HTMLInputElement>) { return <input {...props} className={cn(inputClass, props.className)} /> }
 export { Select } from './ui/Select'
+export { DatePicker } from './ui/DatePicker'
 export function TextArea(props: TextareaHTMLAttributes<HTMLTextAreaElement>) { return <textarea {...props} className={cn(inputClass, 'min-h-24 resize-y py-2.5', props.className)} /> }
 
 export function Modal({ open, onClose, title, children, footer, size = 'max-w-xl' }: { open: boolean; onClose: () => void; title: string; children: ReactNode; footer?: ReactNode; size?: string }) {
