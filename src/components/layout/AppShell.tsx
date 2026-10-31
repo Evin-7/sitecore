@@ -78,7 +78,6 @@ export function AppShell() {
       <button className="-mr-1 -mt-1 grid h-7 w-7 shrink-0 place-items-center rounded-md text-ops-muted transition-colors hover:bg-ops-bg hover:text-ops-text" onClick={() => visibleToast.id === 'store-error' ? setError(null) : dismissToast(visibleToast.id)} aria-label="Dismiss notification"><X size={15} /></button>
     </div>}
     {notice && <div role="status" className="fixed bottom-24 left-4 z-50 flex max-w-sm items-start gap-3 rounded-lg border border-ops-warning/25 bg-ops-panel p-4 shadow-xl sm:bottom-4"><AlertTriangle size={17} className="mt-0.5 shrink-0 text-ops-warning" /><div className="min-w-0"><p className="text-sm font-medium">{notice.title}</p><p className="mt-1 line-clamp-2 text-xs text-ops-muted">{notice.description}</p><Link to="/alerts" onClick={dismissNotice} className="mt-2 inline-block text-xs font-medium text-ops-accent-text">Review incidents</Link></div><button className="ml-auto text-ops-muted hover:text-ops-text" onClick={dismissNotice} aria-label="Dismiss notification"><X size={15} /></button></div>}
-    <footer className="border-t border-ops-line px-4 py-3 text-center text-xs text-ops-muted sm:px-6 lg:ml-[248px]">SiteCore · Shared demo data · Public edits enabled</footer>
     <ScrollRestoration />
   </div>
 }
