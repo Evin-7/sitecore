@@ -1,5 +1,5 @@
-import { useEffect, type ButtonHTMLAttributes, type HTMLAttributes, type InputHTMLAttributes, type ReactNode, type TextareaHTMLAttributes } from 'react'
-import { X } from 'lucide-react'
+import { useEffect, useState, type ButtonHTMLAttributes, type HTMLAttributes, type InputHTMLAttributes, type MouseEvent, type ReactNode, type TextareaHTMLAttributes } from 'react'
+import { LoaderCircle, X } from 'lucide-react'
 import { cn } from '../lib/cn'
 
 const buttonStyles = {
@@ -9,8 +9,29 @@ const buttonStyles = {
   danger: 'bg-rose-700 text-white hover:bg-rose-800 disabled:bg-ops-line disabled:text-ops-muted disabled:hover:bg-ops-line',
 } as const
 
-export function Button({ variant = 'secondary', className, ...props }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: keyof typeof buttonStyles }) {
-  return <button {...props} className={cn('inline-flex min-h-9 items-center justify-center gap-2 rounded-lg px-3.5 text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ops-accent', buttonStyles[variant], className)} />
+type ButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'onClick'> & {
+  variant?: keyof typeof buttonStyles
+  loading?: boolean
+  onClick?: (event: MouseEvent<HTMLButtonElement>) => void | Promise<unknown>
+}
+
+export function Button({ variant = 'secondary', className, loading: externallyLoading = false, disabled, onClick, children, ...props }: ButtonProps) {
+  const [pending, setPending] = useState(false)
+  const loading = externallyLoading || pending
+
+  const handleClick = (event: MouseEvent<HTMLButtonElement>) => {
+    if (disabled || loading) return
+    const result = onClick?.(event)
+    if (result && typeof result.then === 'function') {
+      setPending(true)
+      void Promise.resolve(result).then(() => setPending(false), () => setPending(false))
+    }
+  }
+
+  return <button {...props} onClick={handleClick} disabled={disabled || loading} aria-busy={loading || undefined} className={cn('relative inline-flex min-h-9 items-center justify-center gap-2 rounded-lg px-3.5 text-sm font-medium transition-colors disabled:pointer-events-none disabled:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ops-accent', buttonStyles[variant], className)}>
+    <span className={cn('inline-flex items-center justify-center gap-2', loading && 'opacity-0')}>{children}</span>
+    {loading && <LoaderCircle aria-hidden="true" className="absolute left-1/2 top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 animate-spin" />}
+  </button>
 }
 
 export function Card({ className, ...props }: HTMLAttributes<HTMLDivElement>) {

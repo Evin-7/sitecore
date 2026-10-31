@@ -29,7 +29,7 @@ function RouteError() {
   return <div className="grid min-h-[70vh] place-items-center p-5"><Card className="max-w-md p-6 text-center"><AlertTriangle className="mx-auto text-ops-danger" /><h1 className="mt-3 text-lg font-semibold">This view could not be opened</h1><p className="mt-2 text-sm text-ops-muted">Your saved workspace remains available. Reload the page or return to the overview.</p><Button className="mt-4" onClick={() => window.location.assign('/dashboard')}>Return to overview</Button></Card></div>
 }
 
-function WorkspaceUnavailable({ error, onRetry }: { error: string | null; onRetry: () => void }) {
+function WorkspaceUnavailable({ error, onRetry }: { error: string | null; onRetry: () => Promise<void> }) {
   return <div className="grid min-h-dvh place-items-center bg-ops-bg p-4 sm:p-6"><Card className="w-full max-w-lg p-6 sm:p-8"><AlertTriangle className="text-ops-danger"/><h1 className="mt-3 text-lg font-semibold">Shared workspace could not be opened</h1><p className="mt-2 text-sm leading-6 text-ops-muted">{error ?? 'Check your connection and cloud database setup, then try again.'}</p><Button variant="primary" className="mt-5" onClick={onRetry}><RefreshCw size={15}/>Retry</Button></Card></div>
 }
 
@@ -87,9 +87,9 @@ export default function App() {
   if (!hydrated) return <WorkspaceLoading />
   if (migrationRequired) return <SharedDataMigrationScreen
     hasSharedData={migrationHasSharedData}
-    onPublish={() => void hydrate('publish')}
-    onUseShared={() => void hydrate('use-shared')}
+    onPublish={() => hydrate('publish')}
+    onUseShared={() => hydrate('use-shared')}
   />
-  if (!data) return <WorkspaceUnavailable error={storeError} onRetry={() => void hydrate()} />
+  if (!data) return <WorkspaceUnavailable error={storeError} onRetry={() => hydrate()} />
   return <RouterProvider router={router} />
 }

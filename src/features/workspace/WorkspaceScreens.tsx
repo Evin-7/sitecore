@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { ArrowRight, Cloud, Database } from 'lucide-react'
 import { Button, Card } from '../../components/ui'
 
@@ -21,9 +22,16 @@ export function SharedDataMigrationScreen({
   onUseShared,
 }: {
   hasSharedData: boolean
-  onPublish: () => void
-  onUseShared: () => void
+  onPublish: () => Promise<void>
+  onUseShared: () => Promise<void>
 }) {
+  const [pendingChoice, setPendingChoice] = useState<'publish' | 'shared' | null>(null)
+  const runChoice = async (choice: 'publish' | 'shared', action: () => Promise<void>) => {
+    if (pendingChoice) return
+    setPendingChoice(choice)
+    try { await action() } finally { setPendingChoice(null) }
+  }
+
   return <div className="grid min-h-dvh place-items-center bg-ops-bg p-4 sm:p-6">
     <Card className="w-full max-w-lg p-6 sm:p-8">
       <span className="grid size-11 place-items-center rounded-xl bg-ops-accent-bg text-ops-accent-text"><Database size={20}/></span>
@@ -34,8 +42,8 @@ export function SharedDataMigrationScreen({
           : 'This browser has records saved from the previous local version. Publishing them will initialize the shared workspace for every visitor. You can also start with the sample site.'}
       </p>
       <div className="mt-6 grid gap-2 sm:grid-cols-2">
-        <Button variant="primary" onClick={onPublish}>Publish to everyone</Button>
-        <Button onClick={onUseShared}>{hasSharedData ? 'Use shared data' : 'Use sample site'} <ArrowRight size={15}/></Button>
+        <Button variant="primary" onClick={() => runChoice('publish', onPublish)} loading={pendingChoice === 'publish'} disabled={Boolean(pendingChoice)}>Publish to everyone</Button>
+        <Button onClick={() => runChoice('shared', onUseShared)} loading={pendingChoice === 'shared'} disabled={Boolean(pendingChoice)}>{hasSharedData ? 'Use shared data' : 'Use sample site'} <ArrowRight size={15}/></Button>
       </div>
       <p className="mt-4 text-xs leading-5 text-ops-muted">All edits are public and sync to other open browsers. This demo workspace is not suitable for confidential or operational records.</p>
     </Card>
