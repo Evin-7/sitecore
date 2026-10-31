@@ -1,6 +1,5 @@
 import { Activity, ArrowRight, ArrowUpRight, Boxes, Building2, ShieldCheck, Truck } from 'lucide-react'
 import { Link } from 'react-router'
-import { SITE_NAME } from '../../data/site-data'
 import { useAppStore } from '../../stores/app-store'
 
 function SitePreview({ assetName, assetStatus, assetLocation }: { assetName: string; assetStatus: string; assetLocation: string }) {
@@ -48,10 +47,9 @@ function SitePreview({ assetName, assetStatus, assetLocation }: { assetName: str
       <path d="m0 468 123-70m550 78 127-70" stroke="#6ca5ff" strokeOpacity=".08" strokeWidth="80"/>
     </svg>
     <div className="absolute inset-x-0 top-0 flex items-center justify-between border-b border-white/10 bg-[#111920]/80 px-4 py-3 backdrop-blur sm:px-5">
-      <div className="flex items-center gap-2.5"><span className="grid h-7 w-7 place-items-center rounded-md bg-blue-500/15 text-blue-300"><Building2 size={15}/></span><div><p className="text-[10px] font-semibold uppercase tracking-[.16em] text-white/50">Site model</p><p className="text-xs font-medium text-white">Northline · Site 04</p></div></div>
+      <div className="flex items-center gap-2.5"><span className="grid h-7 w-7 place-items-center rounded-md bg-blue-500/15 text-blue-300"><Building2 size={15}/></span><p className="text-[10px] font-semibold uppercase tracking-[.16em] text-white/70">Site model</p></div>
       <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-300/15 bg-emerald-300/[.08] px-2.5 py-1 text-[10px] font-medium text-emerald-200"><span className="h-1.5 w-1.5 rounded-full bg-emerald-400"/>CONNECTED</span>
     </div>
-    <div className="absolute bottom-4 left-4 flex items-center gap-2 rounded-lg border border-white/10 bg-[#111920]/85 px-3 py-2 text-[11px] text-white/75 backdrop-blur sm:bottom-5 sm:left-5"><Activity size={13} className="text-blue-300"/>Shared workspace updates in real time</div>
     <div className="absolute right-4 top-[72px] hidden max-w-[190px] rounded-lg border border-white/10 bg-[#111920]/85 p-3 shadow-xl backdrop-blur sm:block"><div className="flex items-center gap-2 text-[11px] font-medium text-white/80"><span className={`h-2 w-2 shrink-0 rounded-full ${assetStatus === 'operational' || assetStatus === 'active' ? 'bg-emerald-400' : assetStatus === 'offline' ? 'bg-rose-400' : 'bg-amber-400'}`}/><span className="truncate">{assetName}</span></div><p className="mt-1.5 truncate pl-4 text-[10px] capitalize text-white/45">{assetStatus.replace('-', ' ')} · {assetLocation}</p></div>
   </div>
 }
@@ -74,21 +72,18 @@ export function HomePage() {
     <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-[560px] bg-[radial-gradient(ellipse_at_70%_5%,rgba(58,111,177,.16),transparent_55%)]"/>
     <header className="relative z-10 mx-auto flex h-[82px] max-w-[1440px] items-center justify-between px-5 sm:px-8 lg:px-12">
       <Link to="/" aria-label="SiteCore home" className="inline-flex rounded-md focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ops-accent"><img src={theme === 'dark' ? '/sitecore-logo-dark.png' : '/sitecore-logo-light.png'} alt="SiteCore" className="h-11 w-36 object-contain object-left"/></Link>
-      <div className="flex items-center gap-3 sm:gap-5"><span className="hidden items-center gap-2 text-xs text-ops-muted sm:flex"><span className="h-1.5 w-1.5 rounded-full bg-emerald-400"/>Public workspace</span><Link to="/dashboard" className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-ops-line bg-ops-panel px-3.5 text-sm font-medium text-ops-text transition hover:border-ops-accent/50 hover:bg-ops-panel/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ops-accent">Enter workspace<ArrowUpRight size={15}/></Link></div>
+      <div className="flex items-center gap-3 sm:gap-5"><Link to="/dashboard" className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-ops-line bg-ops-panel px-3.5 text-sm font-medium text-ops-text transition hover:border-ops-accent/50 hover:bg-ops-panel/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ops-accent">Enter workspace<ArrowUpRight size={15}/></Link></div>
     </header>
 
     <main className="relative mx-auto max-w-[1440px] px-5 pb-10 pt-7 sm:px-8 sm:pt-12 lg:px-12 lg:pt-[72px]">
       <section className="grid items-center gap-12 lg:grid-cols-[.92fr_1.08fr] lg:gap-14 xl:gap-[88px]">
         <div className="max-w-[570px]">
-          <div className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-ops-line bg-ops-panel/75 px-3 py-1.5 text-[11px] font-medium tracking-[.08em] text-ops-muted"><span className="h-1.5 w-1.5 rounded-full bg-emerald-400"/>{SITE_NAME.toUpperCase()}<span className="text-ops-line">/</span>PUBLIC DEMO</div>
           <h1 className="max-w-[620px] text-[clamp(3rem,6vw,5.25rem)] font-semibold leading-[.99] tracking-[-.055em] text-ops-text">Operations,<br/><span className="text-ops-accent-text">brought into focus.</span></h1>
           <p className="mt-6 max-w-[475px] text-base leading-7 text-ops-muted sm:text-lg sm:leading-8">Explore a connected 3D site model, operational assets, and incident activity in one shared workspace.</p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Link to="/dashboard" className="group inline-flex min-h-12 items-center gap-3 rounded-lg bg-ops-primary px-5 text-sm font-semibold text-white shadow-[0_10px_28px_-13px_rgba(37,99,235,.85)] transition hover:-translate-y-0.5 hover:bg-ops-primary-hover focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-ops-accent">Enter SiteCore<ArrowRight size={16} className="transition-transform group-hover:translate-x-0.5"/></Link>
             <Link to="/site" className="inline-flex min-h-12 items-center gap-2 rounded-lg px-4 text-sm font-medium text-ops-muted transition hover:bg-ops-panel hover:text-ops-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ops-accent">Open 3D viewer<ArrowUpRight size={15}/></Link>
           </div>
-          <div className="mt-5 flex items-center gap-2 text-xs text-ops-muted"><ShieldCheck size={14} className="text-ops-success"/>No login required<span className="text-ops-line">·</span>shared public demo</div>
-
           <div className="mt-12 grid grid-cols-2 gap-x-6 gap-y-5 border-t border-ops-line/80 pt-6 sm:grid-cols-4 lg:mt-[68px]">
             {metrics.map(({ label, value, icon: Icon }) => <div key={label} className="flex items-start gap-2.5"><Icon size={15} className="mt-1 shrink-0 text-ops-accent-text"/><div><p className="text-xl font-semibold tabular-nums tracking-tight">{value}</p><p className="mt-0.5 text-[11px] text-ops-muted">{label}</p></div></div>)}
           </div>
@@ -105,11 +100,11 @@ export function HomePage() {
         {[
           { icon: Building2, title: 'See the whole site', text: 'Explore facilities and operational zones in 3D.' },
           { icon: Truck, title: 'Track every asset', text: 'Inspect status, location, and maintenance records.' },
-          { icon: Activity, title: 'Stay in sync', text: 'Shared workspace changes update across visitors.' },
+          { icon: Activity, title: 'Stay in sync', text: 'Activity and incidents stay connected to asset records.' },
         ].map(({ icon: Icon, title, text }) => <div key={title} className="flex items-start gap-4 py-5 sm:px-5 sm:py-6 first:sm:pl-0 last:sm:pr-0"><span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-ops-line bg-ops-panel text-ops-accent-text"><Icon size={16}/></span><div><h2 className="text-sm font-medium">{title}</h2><p className="mt-1 text-xs leading-5 text-ops-muted">{text}</p></div></div>)}
       </section>
     </main>
 
-    <footer className="relative mx-auto flex max-w-[1440px] flex-col gap-3 px-5 py-6 text-[11px] text-ops-muted sm:flex-row sm:items-center sm:justify-between sm:px-8 lg:px-12"><span>© {new Date().getFullYear()} SiteCore · Northline Materials Terminal</span><span>Public demo workspace · Records are shared with all visitors</span></footer>
+    <footer className="relative mx-auto max-w-[1440px] px-5 py-6 text-[11px] text-ops-muted sm:px-8 lg:px-12">© {new Date().getFullYear()} SiteCore</footer>
   </div>
 }
