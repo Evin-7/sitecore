@@ -11,6 +11,7 @@ import { isSupabaseConfigured, supabase } from './lib/supabase'
 import { subscribeToSharedSiteData } from './services/site-repository'
 
 const DashboardPage = lazy(() => import('./features/dashboard/DashboardPage').then((module) => ({ default: module.DashboardPage })))
+const HomePage = lazy(() => import('./features/home/HomePage').then((module) => ({ default: module.HomePage })))
 const SitePage = lazy(() => import('./features/site/SitePage').then((module) => ({ default: module.SitePage })))
 const AssetsPage = lazy(() => import('./features/assets/AssetsPage').then((module) => ({ default: module.AssetsPage })))
 const OperationsPage = lazy(() => import('./features/operations/OperationsPage').then((module) => ({ default: module.OperationsPage })))
@@ -26,7 +27,7 @@ function RouteLoading() {
 }
 
 function RouteError() {
-  return <div className="grid min-h-[70vh] place-items-center p-5"><Card className="max-w-md p-6 text-center"><AlertTriangle className="mx-auto text-ops-danger" /><h1 className="mt-3 text-lg font-semibold">This view could not be opened</h1><p className="mt-2 text-sm text-ops-muted">Your saved workspace remains available. Reload the page or return to the overview.</p><Button className="mt-4" onClick={() => window.location.assign('/')}>Return to overview</Button></Card></div>
+  return <div className="grid min-h-[70vh] place-items-center p-5"><Card className="max-w-md p-6 text-center"><AlertTriangle className="mx-auto text-ops-danger" /><h1 className="mt-3 text-lg font-semibold">This view could not be opened</h1><p className="mt-2 text-sm text-ops-muted">Your saved workspace remains available. Reload the page or return to the overview.</p><Button className="mt-4" onClick={() => window.location.assign('/dashboard')}>Return to overview</Button></Card></div>
 }
 
 function WorkspaceUnavailable({ error, onRetry }: { error: string | null; onRetry: () => void }) {
@@ -35,10 +36,15 @@ function WorkspaceUnavailable({ error, onRetry }: { error: string | null; onRetr
 
 const router = createBrowserRouter([
   {
+    path: '/',
+    element: <Suspense fallback={<RouteLoading />}><HomePage /></Suspense>,
+    errorElement: <RouteError />,
+  },
+  {
     element: <AppShell />,
     errorElement: <RouteError />,
     children: [
-      { index: true, element: <Suspense fallback={<RouteLoading />}><DashboardPage /></Suspense> },
+      { path: 'dashboard', element: <Suspense fallback={<RouteLoading />}><DashboardPage /></Suspense> },
       { path: 'assets', element: <Suspense fallback={<RouteLoading />}><AssetsPage /></Suspense> },
       { path: 'operations', element: <Suspense fallback={<RouteLoading />}><OperationsPage /></Suspense> },
       { path: 'alerts', element: <Suspense fallback={<RouteLoading />}><AlertsPage /></Suspense> },

@@ -7,7 +7,7 @@ import { SITE_NAME } from '../../data/site-data'
 import { useAppStore } from '../../stores/app-store'
 
 const links = [
-  { to: '/', label: 'Overview', icon: Gauge, end: true },
+  { to: '/dashboard', label: 'Overview', icon: Gauge, end: true },
   { to: '/site', label: 'Site viewer', icon: Building2 },
   { to: '/assets', label: 'Asset register', icon: Boxes },
   { to: '/operations', label: 'Operations', icon: Activity },
@@ -20,7 +20,7 @@ const links = [
 ]
 
 const pageTitles: Record<string, string> = {
-  '/': 'Operations overview', '/site': 'Site monitoring', '/assets': 'Asset management', '/operations': 'Operations',
+  '/dashboard': 'Operations overview', '/site': 'Site monitoring', '/assets': 'Asset management', '/operations': 'Operations',
   '/alerts': 'Incident management', '/maintenance': 'Maintenance center', '/inspections': 'Inspections',
   '/analytics': 'Site analytics', '/reports': 'Reports', '/settings': 'Site settings',
 }

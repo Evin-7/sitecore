@@ -30,8 +30,8 @@ export function Badge({ children, tone, className }: { children: ReactNode; tone
   return <span className={cn('inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium capitalize ring-1 ring-inset', badgeColor[key] ?? 'bg-ops-neutral-bg text-ops-muted ring-ops-line', className)}>{children}</span>
 }
 
-export function PageHeading({ eyebrow, title, description, actions }: { eyebrow?: string; title: string; description?: string; actions?: ReactNode }) {
-  return <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div>{eyebrow && <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-ops-accent-text">{eyebrow}</p>}<h1 className="text-2xl font-semibold tracking-tight text-ops-text sm:text-[28px]">{title}</h1>{description && <p className="mt-1.5 max-w-2xl text-sm leading-6 text-ops-muted">{description}</p>}</div>{actions && <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>}</div>
+export function PageHeading({ eyebrow, title, actions }: { eyebrow?: string; title: string; actions?: ReactNode }) {
+  return <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div>{eyebrow && <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-ops-accent-text">{eyebrow}</p>}<h1 className="text-2xl font-semibold tracking-tight text-ops-text sm:text-[28px]">{title}</h1></div>{actions && <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>}</div>
 }
 
 export function Field({ label, hint, children, className }: { label: string; hint?: string; children: ReactNode; className?: string }) {

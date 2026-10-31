@@ -66,7 +66,7 @@ export function MaintenancePage() {
   }
 
   return <>
-    <PageHeading eyebrow="Service schedule & work orders" title="Maintenance center" description="Plan service, assign technicians, track due dates, and retain maintenance history against the asset record." actions={<Button variant="primary" onClick={() => { setEditing(null); setModal('create') }}><Plus size={15}/>Create work order</Button>} />
+    <PageHeading eyebrow="Service schedule & work orders" title="Maintenance center" actions={<Button variant="primary" onClick={() => { setEditing(null); setModal('create') }}><Plus size={15}/>Create work order</Button>} />
     <div className="mb-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">{[
       { label: 'Open work orders', value: data.maintenanceTasks.filter((task) => task.status === 'scheduled' || task.status === 'in-progress').length, icon: ClipboardList, color: 'text-ops-accent-text' },
       { label: 'Due today', value: data.maintenanceTasks.filter((task) => task.dueDate === today && task.status !== 'completed' && task.status !== 'cancelled').length, icon: CalendarClock, color: 'text-ops-warning' },
