@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { Download, FileUp, Moon, RotateCcw, Sun, Trash2 } from 'lucide-react'
-import { Badge, Button, Card, Field, Modal, PageHeading, SectionTitle, Select } from '../../components/ui'
+import { Button, Card, Field, Modal, PageHeading, SectionTitle, Select } from '../../components/ui'
 import { useAppStore } from '../../stores/app-store'
 import type { SceneQuality, SceneView } from '../../types/operations'
 
@@ -45,7 +45,7 @@ export function SettingsPage() {
   }
 
   return <>
-    <PageHeading eyebrow="Shared demo configuration" title="Site settings" actions={<Badge tone="idle">Shared live data</Badge>} />
+    <PageHeading title="Site settings" />
     {message && <p role="status" className="mb-4 rounded-lg border border-ops-success/20 bg-ops-success-bg/50 px-4 py-3 text-sm text-ops-success">{message}</p>}
     <div className="grid gap-4 xl:grid-cols-2">
       <Card className="p-5"><SectionTitle title="Appearance & viewer"/><div className="divide-y divide-ops-line">
