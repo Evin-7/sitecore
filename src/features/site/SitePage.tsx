@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
-import { Activity, AlertTriangle, ArrowLeft, Box, Crosshair, Edit3, Expand, Layers3, LocateFixed, MapPinned, Minimize2, Moon, PanelRightClose, PanelRightOpen, RotateCcw, Search, Sun, X } from 'lucide-react'
+import { Activity, AlertTriangle, ArrowLeft, Box, Crosshair, Edit3, Expand, Layers3, LocateFixed, MapPinned, Minimize2, PanelRightClose, PanelRightOpen, RotateCcw, Search, X } from 'lucide-react'
 import { SiteScene } from '../../components/SiteScene'
 import { Badge, Button, SectionTitle, Select } from '../../components/ui'
 import { formatDimensions, formatLength, getZoneName } from '../../lib/format'
@@ -124,7 +124,6 @@ export function SitePage() {
 
         <div className="ml-auto flex shrink-0 items-center gap-1.5 xl:order-3">
           <Link to="/dashboard" className="inline-flex min-h-9 items-center gap-1.5 rounded-lg border border-ops-line px-2.5 text-xs font-medium text-ops-text transition-colors hover:bg-ops-bg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ops-accent sm:px-3 sm:text-sm"><ArrowLeft size={15} /><span>Dashboard</span></Link>
-          <Button variant="subtle" className="h-9 min-h-9 w-9 p-0" onClick={() => void updateSettings({ theme: data.settings.theme === 'light' ? 'dark' : 'light' })} aria-label={`Switch to ${data.settings.theme === 'light' ? 'dark' : 'light'} theme`} title={`Switch to ${data.settings.theme === 'light' ? 'dark' : 'light'} theme`}>{data.settings.theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}</Button>
           {!inspectorOpen && <Button variant="subtle" className="h-9 min-h-9 w-9 p-0" onClick={() => setInspectorOpen(true)} aria-controls="site-inspector" aria-label="Show inspector" title="Show inspector"><PanelRightOpen size={16} /></Button>}
           <Button variant="subtle" className="h-9 min-h-9 w-9 p-0" onClick={() => void toggleFullscreen()} aria-label={fullscreen ? 'Exit full screen' : 'Enter full screen'} title={fullscreen ? 'Exit full screen (F)' : 'Enter full screen (F)'}>{fullscreen ? <Minimize2 size={16} /> : <Expand size={16} />}</Button>
         </div>
