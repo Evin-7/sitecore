@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { Activity, AlertTriangle, ArrowLeft, Box, Crosshair, Edit3, Expand, Layers3, LocateFixed, MapPinned, Minimize2, PanelRightClose, PanelRightOpen, RotateCcw, Search, X } from 'lucide-react'
 import { SiteScene } from '../../components/SiteScene'
-import { BrandLogo } from '../../components/BrandLogo'
 import { Badge, Button, SectionTitle, Select } from '../../components/ui'
 import { formatDimensions, formatLength, getZoneName } from '../../lib/format'
 import { SITE_NAME } from '../../data/site-data'
@@ -115,8 +114,6 @@ export function SitePage() {
     <header className="z-30 shrink-0 border-b border-ops-line bg-ops-panel">
       <div className="flex min-h-[62px] flex-wrap items-center gap-x-3 gap-y-2 px-3 py-2 sm:px-4 xl:flex-nowrap">
         <div className="flex min-w-0 items-center gap-2.5">
-          <BrandLogo theme={data.settings.theme} className="h-9 w-28" />
-          <span className="hidden h-8 w-px bg-ops-line sm:block" />
           <div className="min-w-0">
             <p className="truncate text-sm font-semibold">{SITE_NAME}</p>
             {data.simulation.running && <div className="mt-0.5 flex items-center gap-1.5 text-xs text-ops-muted"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-ops-warning" />Simulation running</div>}
