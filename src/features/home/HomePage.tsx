@@ -1,5 +1,6 @@
 import { Activity, ArrowRight, ArrowUpRight, Boxes, Building2, ShieldCheck, Truck } from 'lucide-react'
 import { Link } from 'react-router'
+import { BrandLogo } from '../../components/BrandLogo'
 import { useAppStore } from '../../stores/app-store'
 
 function SitePreview({ assetName, assetStatus, assetLocation }: { assetName: string; assetStatus: string; assetLocation: string }) {
@@ -70,8 +71,8 @@ export function HomePage() {
 
   return <div className="relative min-h-dvh overflow-hidden bg-ops-bg text-ops-text">
     <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-[560px] bg-[radial-gradient(ellipse_at_70%_5%,rgba(58,111,177,.16),transparent_55%)]"/>
-    <header className="relative z-10 mx-auto flex h-[82px] max-w-[1440px] items-center justify-between px-5 sm:px-8 lg:px-12">
-      <Link to="/" aria-label="SiteCore home" className="inline-flex rounded-md focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ops-accent"><img src={theme === 'dark' ? '/sitecore-logo-dark.png' : '/sitecore-logo-light.png'} alt="SiteCore" className="h-11 w-36 object-contain object-left"/></Link>
+    <header className="relative mx-auto flex h-[82px] max-w-[1440px] items-center justify-between px-5 sm:px-8 lg:px-12">
+      <Link to="/" aria-label="SiteCore home" className="inline-flex rounded-md focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ops-accent"><BrandLogo theme={theme} className="h-11 w-36"/></Link>
       <div className="flex items-center gap-3 sm:gap-5"><Link to="/dashboard" className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-ops-line bg-ops-panel px-3.5 text-sm font-medium text-ops-text transition hover:border-ops-accent/50 hover:bg-ops-panel/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ops-accent">Enter workspace<ArrowUpRight size={15}/></Link></div>
     </header>
 

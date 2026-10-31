@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, ScrollRestoration, useLocation } from 'react-router'
 import { Activity, AlertTriangle, BarChart3, Bell, Boxes, Building2, CheckCircle2, ClipboardCheck, ClipboardList, Gauge, Menu, Moon, PanelLeftClose, PanelLeftOpen, Settings2, Sun, X } from 'lucide-react'
 import { Button } from '../ui'
+import { BrandLogo } from '../BrandLogo'
 import { cn } from '../../lib/cn'
 import { SITE_NAME } from '../../data/site-data'
 import { useAppStore } from '../../stores/app-store'
@@ -33,7 +34,7 @@ function Sidebar({ onNavigate, mobile = false, collapsed = false, onToggleCollap
   return <aside className={cn('flex h-full shrink-0 flex-col border-r border-ops-line bg-ops-panel transition-[width] duration-200', mobile ? 'w-full' : compact ? 'w-[84px]' : 'w-[248px]')}>
     <div className={cn('flex h-[68px] shrink-0 items-center border-b border-ops-line', compact ? 'justify-between gap-1 px-2' : 'justify-between px-5')}>
       <NavLink to="/" onClick={onNavigate} aria-label="SiteCore home" className="inline-flex min-w-0 items-center">
-        {compact ? <img src="/favicon.svg" alt="SiteCore" className="h-8 w-8 shrink-0 rounded-md" /> : <img src={theme === 'dark' ? '/sitecore-logo-dark.png' : '/sitecore-logo-light.png'} alt="SiteCore" className="h-11 w-36 object-contain object-left" />}
+        {compact ? <BrandLogo theme={theme} markOnly className="h-8 w-8 rounded-md" /> : <BrandLogo theme={theme} className="h-11 w-36" />}
       </NavLink>
       {mobile ? <Button variant="subtle" className="h-8 min-h-8 w-8 p-0" onClick={onNavigate} aria-label="Close navigation"><X size={17} /></Button> : <Button variant="subtle" className="h-8 min-h-8 w-8 shrink-0 p-0" onClick={onToggleCollapse} aria-expanded={!compact} aria-label={compact ? 'Expand sidebar' : 'Collapse sidebar'} title={compact ? 'Expand sidebar' : 'Collapse sidebar'}>{compact ? <PanelLeftOpen size={17} /> : <PanelLeftClose size={17} />}</Button>}
     </div>
