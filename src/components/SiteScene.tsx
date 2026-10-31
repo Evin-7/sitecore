@@ -358,7 +358,7 @@ function SiteZones({ zones, selectedZoneId, onSelectZone, showLabels }: Pick<Sit
           [x + w / 2, 0.025, z + d / 2],
           [x - w / 2, 0.025, z - d / 2],
         ]
-        return <group key={zone.id} onClick={(event) => { event.stopPropagation(); onSelectZone(zone.id) }}>
+        return <group key={zone.id} onClick={(event) => { event.stopPropagation(); onSelectZone(zone.id) }} onPointerOver={(event) => { event.stopPropagation(); document.body.style.cursor = 'pointer' }} onPointerOut={() => { document.body.style.cursor = '' }}>
           <mesh rotation={[-Math.PI / 2, 0, 0]} position={[x, 0.018, z]}><planeGeometry args={[w, d]} /><meshBasicMaterial color={zone.color} transparent opacity={selectedZoneId === zone.id ? 0.14 : 0.045} depthWrite={false} /></mesh>
           <Line points={corners} color={zone.color} lineWidth={selectedZoneId === zone.id ? 1.6 : 0.7} transparent opacity={selectedZoneId === zone.id ? 0.95 : 0.56} />
           {showLabels && <CanvasLabel position={[x, 0.075, z + d / 2 - 0.6]} rotation={[-Math.PI / 2, 0, 0]} color="#c1cbc0">{zone.name.toUpperCase()}</CanvasLabel>}

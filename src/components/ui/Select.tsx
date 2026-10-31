@@ -129,7 +129,7 @@ export function Select({
                 value={toRadixValue(option.value)!}
                 textValue={option.textValue}
                 disabled={option.disabled}
-                className="relative flex min-h-9 cursor-default select-none items-center whitespace-nowrap rounded-md py-2 pl-3 pr-9 text-sm leading-5 text-ops-text outline-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[highlighted]:bg-ops-accent-bg data-[highlighted]:text-ops-accent-text data-[state=checked]:font-medium"
+                className="relative flex min-h-9 cursor-pointer select-none items-center whitespace-nowrap rounded-md py-2 pl-3 pr-9 text-sm leading-5 text-ops-text outline-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[highlighted]:bg-ops-accent-bg data-[highlighted]:text-ops-accent-text data-[state=checked]:font-medium"
               >
                 <SelectPrimitive.ItemText>{option.label}</SelectPrimitive.ItemText>
                 <SelectPrimitive.ItemIndicator className="absolute right-3 inline-flex items-center text-ops-accent-text">
