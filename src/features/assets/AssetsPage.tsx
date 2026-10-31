@@ -21,7 +21,7 @@ function getEditAssetId(state: unknown): string | null {
 
 function defaultDraft(zoneId: string | null): AssetDraft {
   const zone = useAppStore.getState().data?.zones.find((item) => item.id === zoneId)
-  return { name: '', kind: 'vehicle', typeLabel: 'Utility vehicle', status: 'operational', location: '', zoneId, position: zone ? [...zone.center] : [0, 0], detail: '', telemetry: 'Local status · no live equipment connection', utilization: 0 }
+  return { name: '', kind: 'vehicle', typeLabel: 'Utility vehicle', status: 'operational', location: '', zoneId, position: zone ? [...zone.center] : [0, 0], detail: '', telemetry: 'Status · no live equipment connection', utilization: 0 }
 }
 
 function AssetForm({ asset, onCancel, onSave }: { asset: SiteAsset | null; onCancel: () => void; onSave: (draft: AssetDraft) => void }) {
@@ -45,7 +45,7 @@ function AssetForm({ asset, onCancel, onSave }: { asset: SiteAsset | null; onCan
     <div className="grid gap-3 sm:grid-cols-3"><Field label="Position X"><TextInput type="number" min={-45} max={45} step="0.5" value={draft.position[0]} onChange={(event) => set('position', [Number(event.target.value), draft.position[1]])} /></Field><Field label="Position Y"><TextInput type="number" min={-45} max={45} step="0.5" value={draft.position[1]} onChange={(event) => set('position', [draft.position[0], Number(event.target.value)])} /></Field><Field label="Utilisation (%)"><TextInput type="number" min={0} max={100} step="1" value={draft.utilization} onChange={(event) => set('utilization', Number(event.target.value))} /></Field></div>
     {building && <div className="grid gap-3 sm:grid-cols-3"><Field label="Footprint width"><TextInput type="number" min={0.5} max={40} step="0.5" value={draft.footprint?.[0] ?? 8} onChange={(event) => set('footprint', [Number(event.target.value), draft.footprint?.[1] ?? 6])} /></Field><Field label="Footprint depth"><TextInput type="number" min={0.5} max={40} step="0.5" value={draft.footprint?.[1] ?? 6} onChange={(event) => set('footprint', [draft.footprint?.[0] ?? 8, Number(event.target.value)])} /></Field><Field label="Height"><TextInput type="number" min={0.5} max={20} step="0.25" value={draft.height ?? 4} onChange={(event) => set('height', Number(event.target.value))} /></Field></div>}
     <Field label="Asset details"><TextArea maxLength={240} required value={draft.detail} onChange={(event) => set('detail', event.target.value)} placeholder="Purpose, capacity, or relevant operating context" /></Field>
-    <Field label="Current local telemetry" hint="Keep clear that these readings are locally recorded or simulated."><TextInput required maxLength={160} value={draft.telemetry} onChange={(event) => set('telemetry', event.target.value)} /></Field>
+    <Field label="Recorded telemetry" hint="These readings are operator-entered or simulated until an equipment connection is added."><TextInput required maxLength={160} value={draft.telemetry} onChange={(event) => set('telemetry', event.target.value)} /></Field>
     <div className="flex justify-end gap-2 pt-1"><Button type="button" onClick={onCancel}>Cancel</Button><Button variant="primary" type="submit">{asset ? 'Save changes' : `Add ${kindLabel.toLowerCase()}`}</Button></div>
   </form>
 }

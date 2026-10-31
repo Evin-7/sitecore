@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import { createInitialData } from '../data/site-data'
 import { ImportDocumentSchema, parsePersistedSiteData, parseSiteAsset, type AssetDraft, type ImportDocument } from '../lib/schemas'
 import { advanceSimulation, resetSimulation } from '../services/simulation-engine'
-import { loadSiteData, saveSiteData } from '../services/site-repository'
+import { loadSharedSiteData, saveSharedSiteData, saveSiteData, WorkspaceConflictError, type LegacyWorkspaceChoice, type SiteWorkspaceSnapshot } from '../services/site-repository'
 import type { Incident, IncidentSeverity, Inspection, MaintenanceTask, OperationalEvent, PersistedSiteData, SceneLayers, SiteAsset, SiteSettings } from '../types/operations'
 
 type DataPatch = (data: PersistedSiteData) => PersistedSiteData
@@ -14,7 +14,11 @@ export interface AppToast {
 }
 interface AppState {
   data: PersistedSiteData | null
+  sharedWorkspace: boolean
+  cloudVersion: number | null
   hydrated: boolean
+  migrationRequired: boolean
+  migrationHasSharedData: boolean
   error: string | null
   toast: AppToast | null
   notice: { id: string; title: string; description: string } | null
@@ -23,7 +27,9 @@ interface AppState {
   layers: SceneLayers
   cameraResetKey: number
   focusRequest: { assetId: string; key: number; position: [number, number]; distance: number } | null
-  hydrate: () => Promise<void>
+  hydrate: (legacyChoice?: LegacyWorkspaceChoice) => Promise<void>
+  clearWorkspace: () => void
+  receiveRemoteWorkspace: (snapshot: SiteWorkspaceSnapshot) => void
   setError: (error: string | null) => void
   showToast: (toast: Omit<AppToast, 'id'>) => void
   dismissToast: (id?: string) => void
@@ -61,7 +67,7 @@ function addEvent(data: PersistedSiteData, event: Omit<OperationalEvent, 'id' | 
 
 function validateReferences(data: PersistedSiteData) {
   const ids = [data.assets.map((item) => item.id), data.zones.map((item) => item.id), data.incidents.map((item) => item.id), data.maintenanceTasks.map((item) => item.id), data.inspections.map((item) => item.id), data.events.map((item) => item.id)]
-  if (ids.some((collection) => new Set(collection).size !== collection.length)) throw new Error('Local data contains duplicate identifiers.')
+  if (ids.some((collection) => new Set(collection).size !== collection.length)) throw new Error('Workspace data contains duplicate identifiers.')
   const assets = new Set(data.assets.map((asset) => asset.id))
   const zones = new Set(data.zones.map((zone) => zone.id))
   const invalid = data.assets.some((asset) => asset.zoneId !== null && !zones.has(asset.zoneId))
@@ -69,26 +75,60 @@ function validateReferences(data: PersistedSiteData) {
     || data.maintenanceTasks.some((item) => item.assetId !== null && !assets.has(item.assetId))
     || data.inspections.some((item) => (item.assetId !== null && !assets.has(item.assetId)) || (item.zoneId !== null && !zones.has(item.zoneId)))
     || data.events.some((item) => (item.assetId !== null && !assets.has(item.assetId)) || (item.zoneId !== null && !zones.has(item.zoneId)))
-  if (invalid) throw new Error('Local data contains a record linked to a missing asset or zone.')
+  if (invalid) throw new Error('Workspace data contains a record linked to a missing asset or zone.')
   return data
 }
 
 export const useAppStore = create<AppState>((set, get) => {
   const apply = async (patch: DataPatch) => {
-    const current = get().data
-    if (!current) return
-    const next = validateReferences(parsePersistedSiteData(patch(current)))
-    set({ data: next, error: null })
-    saveQueue = saveQueue.catch(() => undefined).then(() => saveSiteData(next))
-    try { await saveQueue } catch (error) {
-      set({ error: error instanceof Error ? error.message : 'Local data could not be saved.' })
+    const operation = saveQueue.catch(() => undefined).then(async () => {
+      const initial = get()
+      if (!initial.data) throw new Error('The workspace is not ready to save.')
+
+      const isSharedWorkspace = initial.sharedWorkspace
+      let baseData = initial.data
+      let version = initial.cloudVersion
+
+      for (let attempt = 0; attempt < 2; attempt += 1) {
+        const next = validateReferences(parsePersistedSiteData(patch(baseData)))
+        try {
+          let saved: { version: number | null; writerId: string | null }
+          if (isSharedWorkspace) saved = await saveSharedSiteData(next, version)
+          else {
+            await saveSiteData(next)
+            saved = { version: null, writerId: null }
+          }
+          const current = get()
+          if (current.sharedWorkspace !== isSharedWorkspace) return
+          if (isSharedWorkspace && current.cloudVersion !== null && saved.version !== null && current.cloudVersion > saved.version) return
+          set({ data: next, cloudVersion: saved.version, error: null })
+          return
+        } catch (error) {
+          if (!(error instanceof WorkspaceConflictError) || !isSharedWorkspace || attempt > 0) throw error
+          const latestResult = await loadSharedSiteData()
+          if (latestResult.status !== 'ready') throw new Error('Workspace migration needs your choice before this change can be saved.', { cause: error })
+          const latest = latestResult.snapshot
+          if (!get().sharedWorkspace) return
+          set({ data: latest.data, cloudVersion: latest.version, error: null })
+          baseData = latest.data
+          version = latest.version
+        }
+      }
+    })
+    saveQueue = operation
+    try { await operation } catch (error) {
+      set({ error: error instanceof Error ? error.message : 'Workspace data could not be saved.' })
       throw error
     }
   }
 
   return {
     data: null,
+    sharedWorkspace: false,
+    cloudVersion: null,
     hydrated: false,
+    migrationRequired: false,
+    migrationHasSharedData: false,
     error: null,
     toast: null,
     notice: null,
@@ -97,14 +137,34 @@ export const useAppStore = create<AppState>((set, get) => {
     layers: { buildings: true, roads: true, mobile: true, infrastructure: true, zones: true, labels: false },
     cameraResetKey: 0,
     focusRequest: null,
-    hydrate: async () => {
+    hydrate: async (legacyChoice) => {
+      set({ data: null, sharedWorkspace: true, cloudVersion: null, hydrated: false, migrationRequired: false, migrationHasSharedData: false, error: null })
       try {
-        const data = await loadSiteData()
-        set({ data: parsePersistedSiteData(data), hydrated: true, error: null })
+        const result = await loadSharedSiteData(legacyChoice)
+        if (result.status === 'migration-choice') {
+          if (!get().sharedWorkspace) return
+          set({ data: null, cloudVersion: result.snapshot?.version ?? null, hydrated: true, migrationRequired: true, migrationHasSharedData: result.hasSharedWorkspace })
+          return
+        }
+        if (!get().sharedWorkspace) return
+        set({ data: parsePersistedSiteData(result.snapshot.data), cloudVersion: result.snapshot.version, hydrated: true, migrationRequired: false, migrationHasSharedData: false, error: null })
       } catch (error) {
-        set({ data: createInitialData(), hydrated: true, error: error instanceof Error ? error.message : 'Could not load local data.' })
+        if (!get().sharedWorkspace) return
+        set({ data: null, cloudVersion: null, hydrated: true, migrationRequired: false, migrationHasSharedData: false, error: error instanceof Error ? error.message : 'Could not load the workspace.' })
       }
     },
+    clearWorkspace: () => {
+      saveQueue = Promise.resolve()
+      set({ data: null, sharedWorkspace: false, cloudVersion: null, hydrated: false, migrationRequired: false, migrationHasSharedData: false, error: null, selectedAssetId: null, selectedZoneId: null, focusRequest: null, notice: null })
+    },
+    receiveRemoteWorkspace: (snapshot) => set((state) => {
+      if (!state.sharedWorkspace || state.migrationRequired || state.cloudVersion === null || state.cloudVersion >= snapshot.version) return state
+      return {
+        data: { ...snapshot.data, simulation: { ...snapshot.data.simulation, running: state.data?.simulation.running ?? false } },
+        cloudVersion: snapshot.version,
+        error: null,
+      }
+    }),
     setError: (error) => set(error ? { error, toast: null } : { error: null }),
     showToast: (toast) => set({ toast: { ...toast, id: makeId('TOAST') }, error: null }),
     dismissToast: (id) => set((state) => state.toast && (!id || state.toast.id === id) ? { toast: null } : state),
@@ -184,8 +244,11 @@ export const useAppStore = create<AppState>((set, get) => {
       return addEvent({ ...data, simulation }, { type: 'simulation', title: simulation.running ? 'Local simulation started' : 'Local simulation paused', description: simulation.running ? 'Deterministic site activity updates are running locally.' : 'The local scenario is paused.', assetId: null, zoneId: null, severity: null })
     }),
     advanceSimulation: async () => {
-      const nextTick = (get().data?.simulation.tick ?? 0) + 1
-      await apply(advanceSimulation)
+      const current = get().data
+      if (!current) return
+      const next = advanceSimulation(current)
+      const nextTick = next.simulation.tick
+      set({ data: parsePersistedSiteData(next) })
       const data = get().data
       const generated = data?.incidents.find((incident) => incident.id === `SIM-AL-${String(nextTick).padStart(4, '0')}`)
       if (generated && data?.settings.notificationsEnabled) set({ notice: { id: generated.id, title: generated.title, description: generated.description } })
@@ -203,9 +266,8 @@ export const useAppStore = create<AppState>((set, get) => {
     },
     resetAllData: async () => {
       const initial = createInitialData()
-      set({ data: initial, notice: null, error: null, selectedAssetId: null, selectedZoneId: null, focusRequest: null })
-      saveQueue = saveQueue.catch(() => undefined).then(() => saveSiteData(initial))
-      await saveQueue
+      await apply(() => initial)
+      set({ notice: null, selectedAssetId: null, selectedZoneId: null, focusRequest: null })
     },
   }
 })

@@ -1,11 +1,14 @@
 import { lazy, Suspense, useEffect } from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router'
-import { Activity, AlertTriangle, LoaderCircle } from 'lucide-react'
+import { AlertTriangle, LoaderCircle, RefreshCw } from 'lucide-react'
 import { AppShell } from './components/layout/AppShell'
 import { ViewerLayout } from './components/layout/ViewerLayout'
 import { Button, Card } from './components/ui'
 import { useAppStore } from './stores/app-store'
 import { useSimulationRuntime } from './hooks/useSimulationRuntime'
+import { CloudSetupScreen, SharedDataMigrationScreen } from './features/workspace/WorkspaceScreens'
+import { isSupabaseConfigured, supabase } from './lib/supabase'
+import { subscribeToSharedSiteData } from './services/site-repository'
 
 const DashboardPage = lazy(() => import('./features/dashboard/DashboardPage').then((module) => ({ default: module.DashboardPage })))
 const SitePage = lazy(() => import('./features/site/SitePage').then((module) => ({ default: module.SitePage })))
@@ -19,11 +22,15 @@ const ReportsPage = lazy(() => import('./features/reports/ReportsPage').then((mo
 const SettingsPage = lazy(() => import('./features/settings/SettingsPage').then((module) => ({ default: module.SettingsPage })))
 
 function RouteLoading() {
-  return <div className="grid min-h-[50vh] place-items-center"><div className="flex items-center gap-3 text-sm text-ops-muted"><LoaderCircle size={18} className="animate-spin text-ops-accent-text" />Loading workspace…</div></div>
+  return <div className="grid min-h-[50vh] place-items-center"><div role="status" aria-label="Loading"><LoaderCircle size={20} aria-hidden="true" className="animate-spin text-ops-accent-text" /></div></div>
 }
 
 function RouteError() {
-  return <div className="grid min-h-[70vh] place-items-center p-5"><Card className="max-w-md p-6 text-center"><AlertTriangle className="mx-auto text-ops-danger" /><h1 className="mt-3 text-lg font-semibold">This view could not be opened</h1><p className="mt-2 text-sm text-ops-muted">Your local data remains available. Reload the page or return to the overview.</p><Button className="mt-4" onClick={() => window.location.assign('/')}>Return to overview</Button></Card></div>
+  return <div className="grid min-h-[70vh] place-items-center p-5"><Card className="max-w-md p-6 text-center"><AlertTriangle className="mx-auto text-ops-danger" /><h1 className="mt-3 text-lg font-semibold">This view could not be opened</h1><p className="mt-2 text-sm text-ops-muted">Your saved workspace remains available. Reload the page or return to the overview.</p><Button className="mt-4" onClick={() => window.location.assign('/')}>Return to overview</Button></Card></div>
+}
+
+function WorkspaceUnavailable({ error, onRetry }: { error: string | null; onRetry: () => void }) {
+  return <div className="grid min-h-dvh place-items-center bg-ops-bg p-4 sm:p-6"><Card className="w-full max-w-lg p-6 sm:p-8"><AlertTriangle className="text-ops-danger"/><h1 className="mt-3 text-lg font-semibold">Shared workspace could not be opened</h1><p className="mt-2 text-sm leading-6 text-ops-muted">{error ?? 'Check your connection and cloud database setup, then try again.'}</p><Button variant="primary" className="mt-5" onClick={onRetry}><RefreshCw size={15}/>Retry</Button></Card></div>
 }
 
 const router = createBrowserRouter([
@@ -52,16 +59,37 @@ const router = createBrowserRouter([
 ])
 
 function WorkspaceLoading() {
-  return <div className="grid min-h-dvh place-items-center bg-ops-bg text-ops-text"><div className="text-center"><Activity className="mx-auto mb-3 h-6 w-6 animate-pulse text-ops-accent-text"/><p className="text-sm text-ops-muted">Opening SiteCore workspace…</p></div></div>
+  return <div className="grid min-h-dvh place-items-center bg-ops-bg text-ops-text"><div role="status" aria-label="Loading"><LoaderCircle className="h-6 w-6 animate-spin text-ops-accent-text" aria-hidden="true" /></div></div>
 }
 
 export default function App() {
   const hydrated = useAppStore((state) => state.hydrated)
+  const data = useAppStore((state) => state.data)
+  const storeError = useAppStore((state) => state.error)
   const hydrate = useAppStore((state) => state.hydrate)
+  const receiveRemoteWorkspace = useAppStore((state) => state.receiveRemoteWorkspace)
+  const migrationRequired = useAppStore((state) => state.migrationRequired)
+  const migrationHasSharedData = useAppStore((state) => state.migrationHasSharedData)
+  const sharedWorkspace = useAppStore((state) => state.sharedWorkspace)
   const theme = useAppStore((state) => state.data?.settings.theme)
-  useEffect(() => { void hydrate() }, [hydrate])
+
+  useEffect(() => {
+    if (!supabase) return
+    void hydrate()
+  }, [hydrate])
+  useEffect(() => {
+    if (!supabase || !hydrated || !sharedWorkspace || migrationRequired) return
+    return subscribeToSharedSiteData(receiveRemoteWorkspace)
+  }, [hydrated, sharedWorkspace, migrationRequired, receiveRemoteWorkspace])
   useEffect(() => { if (theme) document.documentElement.dataset.theme = theme }, [theme])
   useSimulationRuntime()
+  if (!isSupabaseConfigured) return <CloudSetupScreen />
   if (!hydrated) return <WorkspaceLoading />
+  if (migrationRequired) return <SharedDataMigrationScreen
+    hasSharedData={migrationHasSharedData}
+    onPublish={() => void hydrate('publish')}
+    onUseShared={() => void hydrate('use-shared')}
+  />
+  if (!data) return <WorkspaceUnavailable error={storeError} onRetry={() => void hydrate()} />
   return <RouterProvider router={router} />
 }
