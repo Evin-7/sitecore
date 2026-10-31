@@ -118,7 +118,7 @@ export function SitePage() {
           <span className="hidden h-8 w-px bg-ops-line sm:block" />
           <div className="min-w-0">
             <p className="truncate text-sm font-semibold">{SITE_NAME}</p>
-            <div className="mt-0.5 flex items-center gap-1.5 text-xs text-ops-muted"><span className={`h-1.5 w-1.5 rounded-full ${data.simulation.running ? 'animate-pulse bg-ops-warning' : 'bg-ops-success'}`} />{data.simulation.running ? 'Simulation running' : 'Shared workspace'}</div>
+            {data.simulation.running && <div className="mt-0.5 flex items-center gap-1.5 text-xs text-ops-muted"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-ops-warning" />Simulation running</div>}
           </div>
         </div>
 
