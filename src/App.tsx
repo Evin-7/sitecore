@@ -22,7 +22,7 @@ const ReportsPage = lazy(() => import('./features/reports/ReportsPage').then((mo
 const SettingsPage = lazy(() => import('./features/settings/SettingsPage').then((module) => ({ default: module.SettingsPage })))
 
 function RouteLoading() {
-  return <div className="grid min-h-[50vh] place-items-center"><div role="status" aria-label="Loading"><LoaderCircle size={20} aria-hidden="true" className="animate-spin text-ops-accent-text" /></div></div>
+  return <div className="fixed inset-0 z-[80] grid place-items-center bg-ops-bg"><div role="status" aria-label="Loading"><LoaderCircle size={20} aria-hidden="true" className="animate-spin text-ops-accent-text" /></div></div>
 }
 
 function RouteError() {
@@ -59,7 +59,7 @@ const router = createBrowserRouter([
 ])
 
 function WorkspaceLoading() {
-  return <div className="grid min-h-dvh place-items-center bg-ops-bg text-ops-text"><div role="status" aria-label="Loading"><LoaderCircle className="h-6 w-6 animate-spin text-ops-accent-text" aria-hidden="true" /></div></div>
+  return <div className="fixed inset-0 z-[80] grid place-items-center bg-ops-bg text-ops-text"><div role="status" aria-label="Loading"><LoaderCircle className="h-6 w-6 animate-spin text-ops-accent-text" aria-hidden="true" /></div></div>
 }
 
 export default function App() {
