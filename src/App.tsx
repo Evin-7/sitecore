@@ -2,7 +2,6 @@ import { lazy, Suspense, useEffect } from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router'
 import { AlertTriangle, LoaderCircle, RefreshCw } from 'lucide-react'
 import { AppShell } from './components/layout/AppShell'
-import { ViewerLayout } from './components/layout/ViewerLayout'
 import { Button, Card } from './components/ui'
 import { useAppStore } from './stores/app-store'
 import { useSimulationRuntime } from './hooks/useSimulationRuntime'
@@ -45,6 +44,7 @@ const router = createBrowserRouter([
     errorElement: <RouteError />,
     children: [
       { path: 'dashboard', element: <Suspense fallback={<RouteLoading />}><DashboardPage /></Suspense> },
+      { path: 'site', element: <Suspense fallback={<RouteLoading />}><SitePage /></Suspense> },
       { path: 'assets', element: <Suspense fallback={<RouteLoading />}><AssetsPage /></Suspense> },
       { path: 'operations', element: <Suspense fallback={<RouteLoading />}><OperationsPage /></Suspense> },
       { path: 'alerts', element: <Suspense fallback={<RouteLoading />}><AlertsPage /></Suspense> },
@@ -55,12 +55,6 @@ const router = createBrowserRouter([
       { path: 'settings', element: <Suspense fallback={<RouteLoading />}><SettingsPage /></Suspense> },
       { path: '*', element: <Suspense fallback={<RouteLoading />}><RouteError /></Suspense> },
     ],
-  },
-  {
-    path: 'site',
-    element: <ViewerLayout />,
-    errorElement: <RouteError />,
-    children: [{ index: true, element: <Suspense fallback={<RouteLoading />}><SitePage /></Suspense> }],
   },
 ])
 
